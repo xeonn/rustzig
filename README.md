@@ -12,3 +12,9 @@ OpenSSL 3.4.0 and libgit2 is included. They are compiled with musl-gcc, enabling
 ```
 docker pull xeonn/rustzig:1.80.0-alpine3.19
 ```
+
+## Compiling Dockerfile
+
+```
+docker buildx build --platform linux/amd64,linux/arm64 -t xeonn/rustzig:1.82.0-alpine3.20 --push .
+```
