@@ -1,0 +1,34 @@
+
+---
+
+- hosts: localhost
+  vars:
+    git_repo_url: "https://github.com/xeonn/rustzig.git"
+    git_branch: "main"
+    registry_url: xeonn/rustzig
+    docker_image_name: "xeonn/rustzig:latest"
+    temp_folder: "/tmp/docker_build_{{ ansible_date_time.iso8601 }}"
+
+  tasks:
+    - name: Create a temporary folder for the repository
+      ansible.builtin.file:
+        path: "{{ temp_folder }}"
+        state: directory
+
+    - name: Clone the GitLab repository (shallow clone)
+      ansible.builtin.git:
+        repo: "{{ gitlab_repo_url }}"
+        dest: "{{ temp_folder }}"
+        version: "{{ git_branch }}"
+        depth: 1
+
+    - name: Build the Docker image and log output
+      shell:
+        cmd: "docker buildx build -f {{ temp_folder }}/Dockerfile -t {{ docker_image_name }} --push {{ temp_folder }} > /var/log/rustzig-build.log 2>&1"
+      args:
+        chdir: "{{ temp_folder }}"
+
+    - name: Clean up temporary folder
+      ansible.builtin.file:
+        path: "{{ temp_folder }}"
+        state: absent
